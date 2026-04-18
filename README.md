@@ -2,7 +2,7 @@
 **Automated Content Repurposing Engine** — AttentionX AI Hackathon
 
 ## Live Demo
-https://shortzify.onrender.com
+(https://aakritijain30.github.io/Shortzify/)
 
 ---
 
