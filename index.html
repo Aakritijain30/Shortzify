@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shortzify — Automated Content Repurposing Engine</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #07080F;
+    --surf: #0F1019;
+    --card: #14151F;
+    --border: #1F2030;
+    --purple: #7C5CFC;
+    --pink: #F040A0;
+    --cyan: #00E5CC;
+    --text: #EEEEFF;
+    --muted: #5A5B70;
+    --soft: #9394A8;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 2rem 1rem;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 680px;
+  }
+
+  /* NAV */
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.2rem 1.8rem;
+    background: var(--surf);
+    border: 1px solid var(--border);
+    border-radius: 14px 14px 0 0;
+  }
+
+  .brand { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.5px; }
+  .brand .p { color: var(--purple); }
+  .brand .pk { color: var(--pink); }
+
+  .nav-pills { display: flex; gap: 6px; }
+  .pill {
+    font-size: 11px; padding: 4px 12px; border-radius: 20px;
+    cursor: pointer; border: 1px solid var(--border);
+    color: var(--muted); background: transparent;
+    font-family: inherit; transition: all 0.2s;
+  }
+  .pill.active { background: var(--purple); border-color: var(--purple); color: #fff; }
+
+  /* MAIN CARD */
+  .main {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 14px 14px;
+    padding-bottom: 2.5rem;
+  }
+
+  /* HERO */
+  .hero { padding: 2.2rem 1.8rem 1.5rem; text-align: center; }
+  .hero h1 {
+    font-size: 2rem; font-weight: 800; letter-spacing: -1px;
+    line-height: 1.2; margin-bottom: 0.5rem;
+  }
+  .hero h1 .hi { color: var(--purple); }
+  .hero p { font-size: 13px; color: var(--soft); max-width: 400px; margin: 0 auto; }
+
+  /* UPLOAD */
+  .upload-section { padding: 0 1.8rem 1.5rem; }
+  .dropzone {
+    border: 1.5px dashed var(--border); border-radius: 12px;
+    padding: 2rem; text-align: center; cursor: pointer;
+    transition: all 0.2s; background: var(--surf);
+  }
+  .dropzone:hover, .dropzone.drag {
+    border-color: var(--purple);
+    background: rgba(124, 92, 252, 0.06);
+  }
+  .drop-icon {
+    width: 44px; height: 44px; border-radius: 10px;
+    background: rgba(124, 92, 252, 0.15);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 0.8rem;
+  }
+  .drop-icon svg { width: 22px; height: 22px; stroke: var(--purple); fill: none; stroke-width: 2; }
+  .drop-title { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+  .drop-sub { font-size: 12px; color: var(--muted); }
+  .or-divider { font-size: 11px; color: var(--muted); text-align: center; margin: 10px 0; letter-spacing: 1.5px; }
+
+  .input-row { display: flex; gap: 8px; }
+  .url-input {
+    flex: 1; background: var(--surf); border: 1px solid var(--border);
+    border-radius: 8px; padding: 9px 13px; color: var(--text);
+    font-size: 13px; font-family: inherit; outline: none; transition: border 0.2s;
+  }
+  .url-input:focus { border-color: var(--purple); }
+  .url-input::placeholder { color: var(--muted); }
+
+  /* BUTTONS */
+  .btn {
+    background: var(--purple); color: #fff; border: none;
+    border-radius: 8px; padding: 9px 16px; font-size: 13px;
+    font-weight: 700; cursor: pointer; font-family: inherit;
+    transition: opacity 0.2s; white-space: nowrap;
+  }
+  .btn:hover { opacity: 0.85; }
+  .btn.outline {
+    background: transparent; border: 1px solid var(--border); color: var(--soft);
+  }
+  .btn.outline:hover { border-color: var(--cyan); color: var(--cyan); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* OPTIONS */
+  .options-section { padding: 0 1.8rem 1.5rem; }
+  .section-label {
+    font-size: 10px; font-weight: 700; color: var(--muted);
+    letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px;
+  }
+  .toggle-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 1rem; }
+  .toggle-card {
+    background: var(--surf); border: 1px solid var(--border);
+    border-radius: 9px; padding: 10px 12px; cursor: pointer;
+    transition: all 0.2s; display: flex; align-items: flex-start; gap: 10px;
+  }
+  .toggle-card.active { border-color: var(--purple); background: rgba(124, 92, 252, 0.08); }
+  .toggle-dot {
+    width: 14px; height: 14px; border-radius: 50%;
+    border: 1.5px solid var(--border); flex-shrink: 0;
+    margin-top: 2px; display: flex; align-items: center;
+    justify-content: center; transition: all 0.2s;
+  }
+  .toggle-card.active .toggle-dot { background: var(--purple); border-color: var(--purple); }
+  .dot-inner {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: #fff; opacity: 0; transition: opacity 0.2s;
+  }
+  .toggle-card.active .dot-inner { opacity: 1; }
+  .toggle-label { font-size: 12px; font-weight: 700; }
+  .toggle-desc { font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4; }
+
+  .slider-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .slider-label { font-size: 12px; color: var(--soft); min-width: 115px; }
+  input[type="range"] { flex: 1; accent-color: var(--purple); }
+  .slider-val { font-size: 12px; font-weight: 700; color: var(--cyan); min-width: 32px; text-align: right; }
+
+  /* GENERATE BUTTON */
+  .cta-section { padding: 0 1.8rem 1.5rem; }
+  .gen-btn {
+    width: 100%; padding: 13px;
+    background: var(--purple); border: none; border-radius: 10px;
+    color: #fff; font-family: inherit; font-weight: 800;
+    font-size: 15px; cursor: pointer; letter-spacing: 0.3px;
+    transition: opacity 0.2s;
+  }
+  .gen-btn:hover { opacity: 0.88; }
+  .gen-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* PIPELINE */
+  .pipeline { padding: 0 1.8rem; display: none; }
+  .pipeline.show { display: block; }
+  .step {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 12px; border-radius: 8px;
+    background: var(--surf); border: 1px solid var(--border);
+    margin-bottom: 7px; transition: all 0.3s;
+  }
+  .step.active { border-color: var(--pink); }
+  .step.done { border-color: var(--cyan); }
+  .step-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--border); flex-shrink: 0; transition: all 0.3s;
+  }
+  .step.active .step-dot { background: var(--pink); box-shadow: 0 0 6px rgba(240,64,160,0.5); }
+  .step.done .step-dot { background: var(--cyan); }
+  .step-text { font-size: 12px; color: var(--muted); flex: 1; transition: color 0.2s; }
+  .step.active .step-text, .step.done .step-text { color: var(--text); }
+  .progress-bar { flex: 1; height: 2px; background: var(--border); border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; width: 0; background: var(--cyan); transition: width 2s linear; }
+
+  /* RESULTS */
+  .results { margin: 1.5rem 1.8rem 0; display: none; }
+  .results.show { display: block; }
+  .clips-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1rem; }
+  .clip-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; overflow: hidden; cursor: pointer; transition: all 0.2s;
+  }
+  .clip-card:hover { border-color: var(--purple); transform: translateY(-2px); }
+  .clip-thumb {
+    aspect-ratio: 9 / 16; background: var(--surf); position: relative;
+    display: flex; flex-direction: column;
+    justify-content: space-between; padding: 6px;
+  }
+  .viral-score {
+    font-size: 9px; font-weight: 800;
+    padding: 3px 7px; border-radius: 20px; align-self: flex-end;
+  }
+  .viral-score.high { background: rgba(240,64,160,0.85); color: #fff; }
+  .viral-score.med  { background: rgba(124,92,252,0.85);  color: #fff; }
+  .waveform { display: flex; align-items: flex-end; gap: 1px; height: 18px; }
+  .wbar { background: var(--cyan); border-radius: 1px; flex: 1; opacity: 0.5; }
+  .wbar.peak { background: var(--pink); opacity: 1; }
+  .clip-info { padding: 7px 8px; }
+  .clip-hook { font-size: 10px; font-weight: 700; margin-bottom: 4px; line-height: 1.3; }
+  .clip-tags { display: flex; flex-wrap: wrap; gap: 3px; }
+  .clip-tag {
+    font-size: 9px; padding: 2px 6px; border-radius: 10px;
+    background: rgba(124,92,252,0.15); color: #9A8CF8;
+  }
+
+  /* STATS */
+  .stats-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 1rem; }
+  .stat-card { background: var(--surf); border-radius: 8px; padding: 10px; text-align: center; }
+  .stat-val { font-size: 1.4rem; font-weight: 800; color: var(--purple); }
+  .stat-lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+
+  .action-row { display: flex; gap: 8px; }
+
+  /* RESPONSIVE */
+  @media (max-width: 480px) {
+    .hero h1 { font-size: 1.5rem; }
+    .clips-grid { grid-template-columns: repeat(2, 1fr); }
+    .toggle-grid { grid-template-columns: 1fr; }
+    .nav-pills { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- NAV -->
+  <nav>
+    <div class="brand"><span class="p">Shortz</span><span class="pk">ify</span></div>
+    <div class="nav-pills">
+      <button class="pill active">Dashboard</button>
+      <button class="pill">My clips</button>
+      <button class="pill">Settings</button>
+    </div>
+  </nav>
+
+  <div class="main">
+
+    <!-- HERO -->
+    <div class="hero">
+      <h1>Long video → <span class="hi">viral clips</span><br>in seconds</h1>
+      <p>Upload any lecture, podcast, or workshop. Shortzify finds the gold and cuts it for you.</p>
+    </div>
+
+    <!-- UPLOAD -->
+    <div class="upload-section">
+      <div class="dropzone" id="dropzone" onclick="document.getElementById('fileInput').click()">
+        <div class="drop-icon">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+        </div>
+        <div class="drop-title" id="dropTitle">Drop your video here</div>
+        <div class="drop-sub" id="dropSub">MP4, MOV, AVI — up to 3 hours supported</div>
+        <input type="file" id="fileInput" accept="video/*" style="display:none" onchange="handleFile(this)">
+      </div>
+      <div class="or-divider">OR PASTE URL</div>
+      <div class="input-row">
+        <input class="url-input" id="urlInput" placeholder="YouTube, Loom, Google Drive link...">
+        <button class="btn" onclick="handleURL()">Import</button>
+      </div>
+    </div>
+
+    <!-- OPTIONS -->
+    <div class="options-section">
+      <div class="section-label">Features</div>
+      <div class="toggle-grid">
+        <div class="toggle-card active" onclick="this.classList.toggle('active')">
+          <div class="toggle-dot"><div class="dot-inner"></div></div>
+          <div>
+            <div class="toggle-label">Emotional peaks</div>
+            <div class="toggle-desc">Audio spikes + sentiment AI</div>
+          </div>
+        </div>
+        <div class="toggle-card active" onclick="this.classList.toggle('active')">
+          <div class="toggle-dot"><div class="dot-inner"></div></div>
+          <div>
+            <div class="toggle-label">Vertical crop 9:16</div>
+            <div class="toggle-desc">Face tracking for Reels/TikTok</div>
+          </div>
+        </div>
+        <div class="toggle-card active" onclick="this.classList.toggle('active')">
+          <div class="toggle-dot"><div class="dot-inner"></div></div>
+          <div>
+            <div class="toggle-label">Karaoke captions</div>
+            <div class="toggle-desc">Word-by-word timed overlays</div>
+          </div>
+        </div>
+        <div class="toggle-card" onclick="this.classList.toggle('active')">
+          <div class="toggle-dot"><div class="dot-inner"></div></div>
+          <div>
+            <div class="toggle-label">Hook headline</div>
+            <div class="toggle-desc">AI scroll-stopping opener</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-label">Preferences</div>
+      <div class="slider-row">
+        <span class="slider-label">Clips to generate</span>
+        <input type="range" min="3" max="10" value="5" step="1" id="nClips"
+               oninput="document.getElementById('nVal').textContent = this.value">
+        <span class="slider-val" id="nVal">5</span>
+      </div>
+      <div class="slider-row">
+        <span class="slider-label">Max clip length</span>
+        <input type="range" min="30" max="90" value="60" step="5" id="cLen"
+               oninput="document.getElementById('lVal').textContent = this.value + 's'">
+        <span class="slider-val" id="lVal">60s</span>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-section">
+      <button class="gen-btn" id="genBtn" onclick="runPipeline()">Generate Clips</button>
+    </div>
+
+    <!-- PIPELINE -->
+    <div class="pipeline" id="pipeline">
+      <div class="section-label" style="margin-bottom:10px">Processing pipeline</div>
+      <div class="step" id="s1"><div class="step-dot"></div><span class="step-text">Transcribing audio with Whisper</span><div class="progress-bar"><div class="progress-fill" id="f1"></div></div></div>
+      <div class="step" id="s2"><div class="step-dot"></div><span class="step-text">Detecting emotional peaks via Gemini 1.5 Flash</span><div class="progress-bar"><div class="progress-fill" id="f2"></div></div></div>
+      <div class="step" id="s3"><div class="step-dot"></div><span class="step-text">Face tracking with MediaPipe</span><div class="progress-bar"><div class="progress-fill" id="f3"></div></div></div>
+      <div class="step" id="s4"><div class="step-dot"></div><span class="step-text">Smart-cropping to 9:16 via MoviePy</span><div class="progress-bar"><div class="progress-fill" id="f4"></div></div></div>
+      <div class="step" id="s5"><div class="step-dot"></div><span class="step-text">Rendering captions & hook headlines</span><div class="progress-bar"><div class="progress-fill" id="f5"></div></div></div>
+    </div>
+
+    <!-- RESULTS -->
+    <div class="results" id="results">
+      <div class="section-label" style="margin-bottom:10px">Your clips</div>
+      <div class="clips-grid" id="clipsGrid"></div>
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-val" id="stClips">5</div><div class="stat-lbl">Clips</div></div>
+        <div class="stat-card"><div class="stat-val">9:16</div><div class="stat-lbl">Format</div></div>
+        <div class="stat-card"><div class="stat-val" id="stHours">52</div><div class="stat-lbl">Hrs saved</div></div>
+      </div>
+      <div class="action-row">
+        <button class="btn" style="flex:1">Optimize for TikTok</button>
+        <button class="btn outline" style="flex:1">Download all (.zip)</button>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /container -->
+
+<script>
+  /* ── Mock clip data ── */
+  const CLIPS = [
+    { score: '97', tier: 'high', hook: 'Nobody tells you this in college',   bars: [3,5,7,9,10,8,10,9,7,6,9,10,8,5,4], tags: ['viral','mindset'] },
+    { score: '89', tier: 'high', hook: 'This one habit changed everything',  bars: [4,6,5,8,7,9,8,10,9,6,5,7,8,6,4], tags: ['habit','growth'] },
+    { score: '81', tier: 'med',  hook: 'Stop doing this at interviews',      bars: [5,4,6,5,7,6,8,7,5,4,6,5,4,5,3], tags: ['career','tips']  },
+    { score: '75', tier: 'med',  hook: 'The truth about getting hired',      bars: [3,4,5,6,5,4,6,5,4,3,5,4,3,4,3], tags: ['jobs','honest']  },
+    { score: '70', tier: 'med',  hook: 'Your resume is lying for you',       bars: [4,3,5,4,6,5,4,5,4,3,4,3,4,3,2], tags: ['resume','real']  },
+  ];
+
+  /* ── File / URL handlers ── */
+  function handleFile(input) {
+    if (!input.files[0]) return;
+    document.getElementById('dropTitle').textContent = input.files[0].name;
+    document.getElementById('dropSub').textContent   = 'Ready to process';
+    document.getElementById('dropzone').style.borderColor = 'var(--cyan)';
+  }
+
+  function handleURL() {
+    const val = document.getElementById('urlInput').value.trim();
+    if (!val) return;
+    document.getElementById('dropTitle').textContent = 'URL imported';
+    document.getElementById('dropSub').textContent   = val.length > 45 ? val.slice(0, 45) + '...' : val;
+    document.getElementById('dropzone').style.borderColor = 'var(--cyan)';
+  }
+
+  /* ── Drag-and-drop ── */
+  const dz = document.getElementById('dropzone');
+  dz.addEventListener('dragover',  e => { e.preventDefault(); dz.classList.add('drag'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('drag'));
+  dz.addEventListener('drop', e => {
+    e.preventDefault(); dz.classList.remove('drag');
+    if (e.dataTransfer.files[0]) {
+      document.getElementById('dropTitle').textContent = e.dataTransfer.files[0].name;
+      dz.style.borderColor = 'var(--cyan)';
+    }
+  });
+
+  /* ── Nav pills ── */
+  document.querySelectorAll('.pill').forEach(p => {
+    p.addEventListener('click', () => {
+      document.querySelectorAll('.pill').forEach(x => x.classList.remove('active'));
+      p.classList.add('active');
+    });
+  });
+
+  /* ── Pipeline animation ── */
+  function runPipeline() {
+    const n = parseInt(document.getElementById('nClips').value);
+    document.getElementById('pipeline').classList.add('show');
+    document.getElementById('results').classList.remove('show');
+
+    const btn = document.getElementById('genBtn');
+    btn.disabled = true;
+    btn.textContent = 'Processing...';
+
+    const steps = ['s1','s2','s3','s4','s5'];
+    const fills  = ['f1','f2','f3','f4','f5'];
+    let i = 0;
+
+    function next() {
+      if (i > 0) {
+        document.getElementById(steps[i-1]).classList.remove('active');
+        document.getElementById(steps[i-1]).classList.add('done');
+      }
+      if (i >= steps.length) { showResults(n); return; }
+      const step = document.getElementById(steps[i]);
+      step.classList.add('active');
+      const fill = document.getElementById(fills[i]);
+      fill.style.width = '0';
+      setTimeout(() => { fill.style.width = '100%'; }, 50);
+      i++;
+      setTimeout(next, 2100);
+    }
+    next();
+  }
+
+  /* ── Show results ── */
+  function showResults(n) {
+    const btn = document.getElementById('genBtn');
+    btn.disabled = false;
+    btn.textContent = 'Generate Clips';
+
+    document.getElementById('results').classList.add('show');
+    const grid  = document.getElementById('clipsGrid');
+    grid.innerHTML = '';
+
+    const shown = CLIPS.slice(0, Math.min(n, CLIPS.length));
+    shown.forEach(c => {
+      const card = document.createElement('div');
+      card.className = 'clip-card';
+
+      const waveBars = c.bars.map(h =>
+        `<div class="wbar${h >= 9 ? ' peak' : ''}" style="height:${Math.round(h / 10 * 100)}%"></div>`
+      ).join('');
+
+      card.innerHTML = `
+        <div class="clip-thumb">
+          <span class="viral-score ${c.tier}">${c.score}%</span>
+          <div class="waveform">${waveBars}</div>
+        </div>
+        <div class="clip-info">
+          <div class="clip-hook">"${c.hook}"</div>
+          <div class="clip-tags">${c.tags.map(t => `<span class="clip-tag">${t}</span>`).join('')}</div>
+        </div>`;
+      grid.appendChild(card);
+    });
+
+    document.getElementById('stClips').textContent = shown.length;
+    document.getElementById('stHours').textContent = Math.round(shown.length * 10.4);
+  }
+</script>
+</body>
+</html>
