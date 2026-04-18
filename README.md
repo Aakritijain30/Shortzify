@@ -1,7 +1,8 @@
 # Shortzify 🎬
 **Automated Content Repurposing Engine** — AttentionX AI Hackathon
 
-Upload a long-form video → get viral 9:16 clips with captions, automatically.
+## Live Demo
+https://shortzify.onrender.com
 
 ---
 
