@@ -1,0 +1,11 @@
+venv/
+__pycache__/
+*.pyc
+uploads/
+outputs/
+.env
+*.mp4
+*.mov
+*.avi
+*.mkv
+.DS_Store
